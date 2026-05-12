@@ -35,6 +35,8 @@ El import automatico de Keycloak se ejecuta al iniciar el contenedor con una bas
 docker compose -f deploy/docker-compose.jenkins.yml down -v
 ```
 
+El pipeline incluye el parametro `RESET_DATA`, activado por defecto, para ejecutar ese reinicio automaticamente antes de desplegar. Desactivalo cuando quieras conservar datos existentes.
+
 ## Levantar Jenkins
 
 ```bat

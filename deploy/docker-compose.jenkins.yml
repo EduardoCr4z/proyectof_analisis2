@@ -1,3 +1,5 @@
+name: universidad
+
 services:
   redis:
     image: redis:7
