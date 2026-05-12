@@ -4,9 +4,7 @@ Este proyecto incluye un `Jenkinsfile` y un `docker-compose.jenkins.yml` para co
 
 ## Requisitos del agente Jenkins
 
-- Docker y Docker Compose instalados.
-- Node.js/npm disponibles para validar `m2` y `frontend_universidad`.
-- Java 17 y Maven disponibles para validar `m1/universidad`.
+- Docker y Docker Compose disponibles. Si usas `deploy/docker-compose.yml`, la imagen personalizada de Jenkins ya incluye Docker CLI, Docker Compose v2, Maven y Node/npm.
 - El usuario que ejecuta Jenkins debe tener permiso para usar Docker.
 
 ## Archivos principales
@@ -23,16 +21,24 @@ Este proyecto incluye un `Jenkinsfile` y un `docker-compose.jenkins.yml` para co
 - M3 Flask: `http://localhost:4003`
 - Keycloak: `http://localhost:8091`
 
-## Ejecucion manual equivalente
+## Levantar Jenkins
 
 ```bat
-docker compose -f docker-compose.jenkins.yml build
-docker compose -f docker-compose.jenkins.yml up -d --remove-orphans
-docker compose -f docker-compose.jenkins.yml ps
+docker compose -f deploy/docker-compose.yml up -d --build
+```
+
+Luego entra a Jenkins en `http://localhost:8081`.
+
+## Ejecucion manual equivalente del despliegue
+
+```bat
+docker compose -f deploy/docker-compose.jenkins.yml build
+docker compose -f deploy/docker-compose.jenkins.yml up -d --remove-orphans
+docker compose -f deploy/docker-compose.jenkins.yml ps
 ```
 
 Para detener el despliegue:
 
 ```bat
-docker compose -f docker-compose.jenkins.yml down
+docker compose -f deploy/docker-compose.jenkins.yml down
 ```

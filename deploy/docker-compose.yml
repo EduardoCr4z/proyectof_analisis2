@@ -1,6 +1,8 @@
 services:
   jenkins:
-    image: jenkins/jenkins:lts
+    build:
+      context: ./jenkins
+    image: universidad/jenkins:lts-tools
     container_name: jenkins_proyecto
     restart: unless-stopped
     user: root
@@ -9,7 +11,7 @@ services:
       - "50000:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
-      - //var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
   jenkins_home:
