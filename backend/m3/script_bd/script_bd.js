@@ -1,4 +1,5 @@
 use('asignaciones')
+db.dropDatabase()
 
 // -----------------------------------------------------
 // OUTBOX

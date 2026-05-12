@@ -97,6 +97,75 @@ def verifyInitialData() {
     }
 }
 
+def loadInitialData() {
+    if (isUnix()) {
+        sh '''
+            set -e
+
+            echo "Esperando bases de datos para cargar scripts iniciales..."
+            for i in $(seq 1 90); do
+                docker exec universidad-mysql mysqladmin ping -h127.0.0.1 -uroot -p123456 --silent && break
+                [ "$i" -eq 90 ] && docker logs --tail 120 universidad-mysql && exit 1
+                sleep 2
+            done
+
+            for i in $(seq 1 90); do
+                docker exec universidad-postgres pg_isready -U postgres -d asignaciones >/dev/null 2>&1 && break
+                [ "$i" -eq 90 ] && docker logs --tail 120 universidad-postgres && exit 1
+                sleep 2
+            done
+
+            for i in $(seq 1 90); do
+                docker exec universidad-mongo mongosh -u admin -p 123456 --authenticationDatabase admin --quiet --eval "db.adminCommand('ping').ok" >/dev/null 2>&1 && break
+                [ "$i" -eq 90 ] && docker logs --tail 120 universidad-mongo && exit 1
+                sleep 2
+            done
+
+            echo "Cargando MySQL..."
+            docker exec -i universidad-mysql mysql -h127.0.0.1 -uroot -p123456 < backend/m2/script_bd.sql
+
+            echo "Cargando Postgres..."
+            docker exec -i universidad-postgres psql -U postgres -d asignaciones < backend/m1/script_bd.sql
+
+            echo "Cargando Mongo..."
+            docker exec -i universidad-mongo mongosh -u admin -p 123456 --authenticationDatabase admin --quiet < backend/m3/script_bd/script_bd.js
+
+            echo "Verificando/importando Keycloak..."
+            for i in $(seq 1 90); do
+                if docker exec universidad-keycloak /opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password 123456 >/dev/null 2>&1; then
+                    break
+                fi
+                [ "$i" -eq 90 ] && docker logs --tail 160 universidad-keycloak && exit 1
+                sleep 2
+            done
+
+            if ! docker exec universidad-keycloak /opt/keycloak/bin/kcadm.sh get realms/Universidad >/dev/null 2>&1; then
+                docker cp deploy/keycloak/realm-universidad.json universidad-keycloak:/tmp/realm-universidad.json
+                docker exec universidad-keycloak /opt/keycloak/bin/kcadm.sh create realms -f /tmp/realm-universidad.json
+            fi
+        '''
+    } else {
+        bat '''
+            @echo off
+            echo Cargando scripts iniciales desde el workspace...
+            docker exec -i universidad-mysql mysql -h127.0.0.1 -uroot -p123456 < backend\\m2\\script_bd.sql
+            if errorlevel 1 exit /b 1
+            docker exec -i universidad-postgres psql -U postgres -d asignaciones < backend\\m1\\script_bd.sql
+            if errorlevel 1 exit /b 1
+            docker exec -i universidad-mongo mongosh -u admin -p 123456 --authenticationDatabase admin --quiet < backend\\m3\\script_bd\\script_bd.js
+            if errorlevel 1 exit /b 1
+
+            docker exec universidad-keycloak /opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password 123456
+            if errorlevel 1 exit /b 1
+            docker exec universidad-keycloak /opt/keycloak/bin/kcadm.sh get realms/Universidad
+            if errorlevel 1 (
+                docker cp deploy\\keycloak\\realm-universidad.json universidad-keycloak:/tmp/realm-universidad.json
+                docker exec universidad-keycloak /opt/keycloak/bin/kcadm.sh create realms -f /tmp/realm-universidad.json
+            )
+        '''
+    }
+}
+
 pipeline {
     agent any
 
@@ -183,6 +252,14 @@ pipeline {
             steps {
                 script {
                     runCmd("docker compose -f ${env.COMPOSE_FILE} ps")
+                }
+            }
+        }
+
+        stage('Cargar Datos Iniciales') {
+            steps {
+                script {
+                    loadInitialData()
                 }
             }
         }
