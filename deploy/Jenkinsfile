@@ -9,15 +9,13 @@ def runCmd(String command) {
 def resetInitialData() {
     if (isUnix()) {
         sh """
-            docker compose -p universidad -f ${env.COMPOSE_FILE} down -v --remove-orphans || true
-            docker compose -p deploy -f ${env.COMPOSE_FILE} down -v --remove-orphans || true
+            docker compose -p universidad -f ${env.COMPOSE_FILE} down -v || true
             docker rm -f universidad-redis universidad-postgres universidad-mysql universidad-mongo universidad-keycloak-mysql universidad-keycloak universidad-m1 universidad-m2 universidad-m3 universidad-frontend || true
             docker volume rm universidad_pg_data universidad_mysql_data universidad_mongo_data universidad_keycloak_mysql_data deploy_pg_data deploy_mysql_data deploy_mongo_data deploy_keycloak_mysql_data || true
         """
     } else {
         bat """
-            docker compose -p universidad -f %COMPOSE_FILE% down -v --remove-orphans
-            docker compose -p deploy -f %COMPOSE_FILE% down -v --remove-orphans
+            docker compose -p universidad -f %COMPOSE_FILE% down -v
             docker rm -f universidad-redis universidad-postgres universidad-mysql universidad-mongo universidad-keycloak-mysql universidad-keycloak universidad-m1 universidad-m2 universidad-m3 universidad-frontend
             docker volume rm universidad_pg_data universidad_mysql_data universidad_mongo_data universidad_keycloak_mysql_data deploy_pg_data deploy_mysql_data deploy_mongo_data deploy_keycloak_mysql_data
             exit /b 0
