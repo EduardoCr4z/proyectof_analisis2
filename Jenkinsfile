@@ -23,6 +23,80 @@ def resetInitialData() {
     }
 }
 
+def verifyInitialData() {
+    if (isUnix()) {
+        sh '''
+            set -e
+
+            echo "Esperando MySQL..."
+            for i in $(seq 1 90); do
+                if docker exec universidad-mysql mysqladmin ping -h127.0.0.1 -uroot -p123456 --silent; then
+                    break
+                fi
+
+                if [ "$i" -eq 90 ]; then
+                    echo "MySQL no estuvo listo a tiempo. Ultimos logs:"
+                    docker logs --tail 120 universidad-mysql
+                    exit 1
+                fi
+
+                sleep 2
+            done
+
+            docker exec universidad-mysql mysql -h127.0.0.1 -uroot -p123456 asignaciones -e "SELECT COUNT(*) AS estudiantes FROM Estudiante; SELECT COUNT(*) AS profesores FROM Profesor; SELECT COUNT(*) AS admins FROM Admin;"
+
+            echo "Esperando Keycloak..."
+            for i in $(seq 1 90); do
+                if docker exec universidad-keycloak /opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password 123456 >/dev/null 2>&1; then
+                    break
+                fi
+
+                if [ "$i" -eq 90 ]; then
+                    echo "Keycloak no estuvo listo a tiempo. Ultimos logs:"
+                    docker logs --tail 160 universidad-keycloak
+                    exit 1
+                fi
+
+                sleep 2
+            done
+
+            docker exec universidad-keycloak /opt/keycloak/bin/kcadm.sh get realms/Universidad
+            docker exec universidad-keycloak /opt/keycloak/bin/kcadm.sh get users -r Universidad -q username=eduardoC
+        '''
+    } else {
+        bat '''
+            @echo off
+            echo Esperando MySQL...
+            for /L %%i in (1,1,90) do (
+                docker exec universidad-mysql mysqladmin ping -h127.0.0.1 -uroot -p123456 --silent
+                if not errorlevel 1 goto mysql_ready
+                timeout /t 2 /nobreak > nul
+            )
+            echo MySQL no estuvo listo a tiempo. Ultimos logs:
+            docker logs --tail 120 universidad-mysql
+            exit /b 1
+
+            :mysql_ready
+            docker exec universidad-mysql mysql -h127.0.0.1 -uroot -p123456 asignaciones -e "SELECT COUNT(*) AS estudiantes FROM Estudiante; SELECT COUNT(*) AS profesores FROM Profesor; SELECT COUNT(*) AS admins FROM Admin;"
+            if errorlevel 1 exit /b 1
+
+            echo Esperando Keycloak...
+            for /L %%i in (1,1,90) do (
+                docker exec universidad-keycloak /opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password 123456
+                if not errorlevel 1 goto keycloak_ready
+                timeout /t 2 /nobreak > nul
+            )
+            echo Keycloak no estuvo listo a tiempo. Ultimos logs:
+            docker logs --tail 160 universidad-keycloak
+            exit /b 1
+
+            :keycloak_ready
+            docker exec universidad-keycloak /opt/keycloak/bin/kcadm.sh get realms/Universidad
+            docker exec universidad-keycloak /opt/keycloak/bin/kcadm.sh get users -r Universidad -q username=eduardoC
+        '''
+    }
+}
+
 pipeline {
     agent any
 
@@ -116,23 +190,7 @@ pipeline {
         stage('Verificar Datos Iniciales') {
             steps {
                 script {
-                    if (isUnix()) {
-                        sh """
-                            sleep 20
-                            docker exec universidad-mysql mysql -uroot -p123456 asignaciones -e "SELECT COUNT(*) AS estudiantes FROM Estudiante; SELECT COUNT(*) AS profesores FROM Profesor; SELECT COUNT(*) AS admins FROM Admin;"
-                            docker exec universidad-keycloak /opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password 123456
-                            docker exec universidad-keycloak /opt/keycloak/bin/kcadm.sh get realms/Universidad
-                            docker exec universidad-keycloak /opt/keycloak/bin/kcadm.sh get users -r Universidad -q username=eduardoC
-                        """
-                    } else {
-                        bat """
-                            timeout /t 20 /nobreak
-                            docker exec universidad-mysql mysql -uroot -p123456 asignaciones -e "SELECT COUNT(*) AS estudiantes FROM Estudiante; SELECT COUNT(*) AS profesores FROM Profesor; SELECT COUNT(*) AS admins FROM Admin;"
-                            docker exec universidad-keycloak /opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password 123456
-                            docker exec universidad-keycloak /opt/keycloak/bin/kcadm.sh get realms/Universidad
-                            docker exec universidad-keycloak /opt/keycloak/bin/kcadm.sh get users -r Universidad -q username=eduardoC
-                        """
-                    }
+                    verifyInitialData()
                 }
             }
         }
