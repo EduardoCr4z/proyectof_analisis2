@@ -1,0 +1,219 @@
+{
+  "realm": "Universidad",
+  "enabled": true,
+  "displayName": "Universidad",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": false,
+  "editUsernameAllowed": false,
+  "roles": {
+    "realm": [
+      {
+        "name": "Admin",
+        "description": "Administrador de la plataforma"
+      },
+      {
+        "name": "Profesores",
+        "description": "Profesores de la universidad"
+      },
+      {
+        "name": "Estudiantes",
+        "description": "Estudiantes de la universidad"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "front_react",
+      "name": "Frontend Universidad",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "frontchannelLogout": true,
+      "redirectUris": [
+        "http://localhost:3000/*",
+        "http://127.0.0.1:3000/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:3000/*##http://127.0.0.1:3000/*"
+      }
+    }
+  ],
+  "users": [
+    {
+      "username": "juanP",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Juan Pérez",
+      "email": "juan.perez@email.com",
+      "realmRoles": ["Estudiantes"],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "1234",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "mariaL",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "María López",
+      "email": "maria.lopez@email.com",
+      "realmRoles": ["Estudiantes"],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "5678",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "carlosR",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Carlos Ramírez",
+      "email": "carlos.ramirez@email.com",
+      "realmRoles": ["Estudiantes"],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "carlosR",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "anaT",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Ana Torres",
+      "email": "ana.torres@email.com",
+      "realmRoles": ["Estudiantes"],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "anaT",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "luisM",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Luis Mendoza",
+      "email": "luis.mendoza@email.com",
+      "realmRoles": ["Estudiantes"],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "luisM",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "robertoG",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Dr. Roberto García",
+      "email": "roberto.garcia@email.com",
+      "realmRoles": ["Profesores"],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "robertoG",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "patriciaS",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Dra. Patricia Sánchez",
+      "email": "patricia.sanchez@email.com",
+      "realmRoles": ["Profesores"],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "patriciaS",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "fernandoD",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Ing. Fernando Díaz",
+      "email": "fernando.diaz@email.com",
+      "realmRoles": ["Profesores"],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "fernandoD",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "gabrielaM",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Lic. Gabriela Morales",
+      "email": "gabriela.morales@email.com",
+      "realmRoles": ["Profesores"],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "gabrielaM",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "andresC",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Mtro. Andrés Castillo",
+      "email": "andres.castillo@email.com",
+      "realmRoles": ["Profesores"],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "andresC",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "eduardoC",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Eduardo Cruz",
+      "email": "cr4zsanchez@email.com",
+      "realmRoles": ["Admin"],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "eduardoC",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}

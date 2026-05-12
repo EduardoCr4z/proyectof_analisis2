@@ -11,6 +11,7 @@ Este proyecto incluye un `Jenkinsfile` y un `docker-compose.jenkins.yml` para co
 
 - `Jenkinsfile`: pipeline declarativo.
 - `docker-compose.jenkins.yml`: despliegue completo de Redis, bases de datos, Keycloak, microservicios y frontend.
+- `keycloak/realm-universidad.json`: realm `Universidad` con cliente `front_react`, roles y usuarios iniciales.
 - `.env.jenkins.example`: variables que puedes copiar como `.env` en el workspace de Jenkins si quieres cambiar credenciales o URLs.
 
 ## URLs publicadas
@@ -20,6 +21,19 @@ Este proyecto incluye un `Jenkinsfile` y un `docker-compose.jenkins.yml` para co
 - M2 Node.js: `http://localhost:4002`
 - M3 Flask: `http://localhost:4003`
 - Keycloak: `http://localhost:8091`
+
+## Usuarios iniciales
+
+- Admin: `eduardoC` / `eduardoC`
+- Estudiante: `juanP` / `1234`
+- Estudiante: `mariaL` / `5678`
+- Profesor: `robertoG` / `robertoG`
+
+El import automatico de Keycloak se ejecuta al iniciar el contenedor con una base de datos de Keycloak vacia. Si ya existe el volumen `keycloak_mysql_data`, elimina el despliegue con volumenes antes de probar el import desde cero:
+
+```bat
+docker compose -f deploy/docker-compose.jenkins.yml down -v
+```
 
 ## Levantar Jenkins
 

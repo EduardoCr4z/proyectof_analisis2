@@ -72,7 +72,7 @@ services:
     image: quay.io/keycloak/keycloak:24.0
     container_name: universidad-keycloak
     restart: unless-stopped
-    command: start-dev
+    command: start-dev --import-realm
     environment:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-123456}
@@ -82,6 +82,8 @@ services:
       KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-123456}
     ports:
       - "8091:8080"
+    volumes:
+      - ./keycloak/realm-universidad.json:/opt/keycloak/data/import/realm-universidad.json:ro
     depends_on:
       - keycloak-mysql
     networks:
