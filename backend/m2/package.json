@@ -1,0 +1,36 @@
+{
+  "name": "backend_node",
+  "version": "1.0.0",
+  "description": "Backend en nodejs",
+  "homepage": "https://github.com/EduardoCr4z/backend_node#readme",
+  "bugs": {
+    "url": "https://github.com/EduardoCr4z/backend_node/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EduardoCr4z/backend_node.git"
+  },
+  "license": "ISC",
+  "author": "Eduardo Cruz",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "axios": "^1.13.5",
+    "bootstrap": "^5.3.8",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "mysql2": "^3.17.1",
+    "nodemon": "^3.1.11",
+    "redis": "^5.11.0"
+  },
+  "devDependencies": {
+    "dotenv": "^17.3.1",
+    "jest": "^30.2.0",
+    "supertest": "^7.2.2"
+  }
+}

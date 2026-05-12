@@ -1,0 +1,181 @@
+services:
+  redis:
+    image: redis:7
+    container_name: universidad-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - micro-net
+
+  postgres:
+    image: postgres:15
+    container_name: universidad-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-asignaciones}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-123456}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./m1/script_bd.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - micro-net
+
+  mysql:
+    image: mysql:8
+    container_name: universidad-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-asignaciones}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123456}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./m2/script_bd.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - micro-net
+
+  mongo:
+    image: mongo:7
+    container_name: universidad-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-123456}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - ./m3/script_bd/script_bd.js:/docker-entrypoint-initdb.d/init.js:ro
+    networks:
+      - micro-net
+
+  keycloak-mysql:
+    image: mysql:8
+    container_name: universidad-keycloak-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${KEYCLOAK_DB:-keycloak_bd}
+      MYSQL_ROOT_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-123456}
+    ports:
+      - "3308:3306"
+    volumes:
+      - keycloak_mysql_data:/var/lib/mysql
+    networks:
+      - micro-net
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: universidad-keycloak
+    restart: unless-stopped
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-123456}
+      KC_DB: mysql
+      KC_DB_URL: jdbc:mysql://keycloak-mysql:3306/${KEYCLOAK_DB:-keycloak_bd}
+      KC_DB_USERNAME: root
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-123456}
+    ports:
+      - "8091:8080"
+    depends_on:
+      - keycloak-mysql
+    networks:
+      - micro-net
+
+  m1:
+    build:
+      context: ./m1
+    image: universidad/m1:latest
+    container_name: universidad-m1
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-asignaciones}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-123456}
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+    ports:
+      - "4001:4001"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - micro-net
+
+  m2:
+    build:
+      context: ./m2
+    image: universidad/m2:latest
+    container_name: universidad-m2
+    restart: unless-stopped
+    environment:
+      PORT: 4002
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123456}
+      MYSQL_DB: ${MYSQL_DATABASE:-asignaciones}
+      KEYCLOAK_INTERNAL_URL: http://keycloak:8080
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-Universidad}
+      KEYCLOAK_ADMIN_REALM: master
+      KEYCLOAK_ADMIN_USER: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-123456}
+    ports:
+      - "4002:4002"
+    depends_on:
+      - mysql
+      - redis
+      - keycloak
+    networks:
+      - micro-net
+
+  m3:
+    build:
+      context: ./m3
+    image: universidad/m3:latest
+    container_name: universidad-m3
+    restart: unless-stopped
+    environment:
+      MONGO_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME:-admin}:${MONGO_INITDB_ROOT_PASSWORD:-123456}@mongo:27017/asignaciones?authSource=admin
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - "4003:4003"
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - micro-net
+
+  frontend_universidad:
+    build:
+      context: ./frontend_universidad
+    image: universidad/frontend:latest
+    container_name: universidad-frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:4002/api}
+      VITE_KEYCLOAK_URL: ${VITE_KEYCLOAK_URL:-http://localhost:8091}
+      VITE_KEYCLOAK_REALM: ${KEYCLOAK_REALM:-Universidad}
+      VITE_KEYCLOAK_CLIENT_ID: ${VITE_KEYCLOAK_CLIENT_ID:-front_react}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - m2
+      - keycloak
+    networks:
+      - micro-net
+
+volumes:
+  pg_data:
+  mysql_data:
+  mongo_data:
+  keycloak_mysql_data:
+
+networks:
+  micro-net:
+    driver: bridge

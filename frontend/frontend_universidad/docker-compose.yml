@@ -1,0 +1,12 @@
+services:
+  frontend_universidad:
+    build: .
+    container_name: frontend_universidad
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      VITE_API_URL: http://localhost:4002/api
+      VITE_KEYCLOAK_URL: http://localhost:8091
+      VITE_KEYCLOAK_REALM: Universidad
+      VITE_KEYCLOAK_CLIENT_ID: front_react

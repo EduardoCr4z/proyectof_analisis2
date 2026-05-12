@@ -1,0 +1,32 @@
+services:
+
+  mongo:
+    image: mongo:7
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: 123456
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - ./script_bd/script_bd.js:/docker-entrypoint-initdb.d/init.js
+    networks:
+      - micro-net
+
+  m3:
+    build: .
+    ports:
+      - "4003:4003"
+    depends_on:
+      - mongo
+    environment:
+      MONGO_URI: mongodb://admin:123456@mongo:27017/asignaciones?authSource=admin
+    networks:
+      - micro-net
+
+volumes:
+  mongo_data:
+
+networks:
+  micro-net:
+    external: true

@@ -1,0 +1,45 @@
+services:
+
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_DATABASE: asignaciones
+      MYSQL_ROOT_PASSWORD: 123456
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./script_bd.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - micro-net
+
+  m2:
+    build: .
+    ports:
+      - "4002:4002"
+    env_file:
+      - .env
+    environment:
+      MYSQL_HOST: m2-mysql-1
+      MYSQL_USER: root
+      MYSQL_PASSWORD: 123456
+      MYSQL_DB: asignaciones
+      KEYCLOAK_INTERNAL_URL: http://keycloak:8080
+      KEYCLOAK_REALM: Universidad
+      KEYCLOAK_ADMIN_REALM: master
+      KEYCLOAK_ADMIN_USER: admin
+      KEYCLOAK_ADMIN_PASSWORD: 123456
+    depends_on:
+      - mysql
+    networks:
+      - micro-net
+      - keycloak_micro-net
+
+
+volumes:
+  mysql_data:
+networks:
+  micro-net:
+    external: true
+  keycloak_micro-net:
+    external: true

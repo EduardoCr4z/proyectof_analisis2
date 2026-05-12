@@ -1,0 +1,66 @@
+pipeline {
+    agent any
+
+    environment {
+        COMPOSE_FILE = 'docker-compose.jenkins.yml'
+        COMPOSE_PROJECT_NAME = 'universidad'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Validar M1') {
+            steps {
+                dir('m1/universidad') {
+                    bat 'mvn -q -DskipTests package'
+                }
+            }
+        }
+
+        stage('Validar M2') {
+            steps {
+                dir('m2') {
+                    bat 'npm ci'
+                    bat 'npm test -- --runInBand'
+                }
+            }
+        }
+
+        stage('Validar Frontend') {
+            steps {
+                dir('frontend_universidad') {
+                    bat 'npm ci'
+                    bat 'npm run build'
+                }
+            }
+        }
+
+        stage('Construir Imagenes') {
+            steps {
+                bat 'docker compose -f %COMPOSE_FILE% build'
+            }
+        }
+
+        stage('Desplegar') {
+            steps {
+                bat 'docker compose -f %COMPOSE_FILE% up -d --remove-orphans'
+            }
+        }
+
+        stage('Estado') {
+            steps {
+                bat 'docker compose -f %COMPOSE_FILE% ps'
+            }
+        }
+    }
+
+    post {
+        failure {
+            bat 'docker compose -f %COMPOSE_FILE% ps'
+        }
+    }
+}

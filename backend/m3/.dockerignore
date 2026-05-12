@@ -1,0 +1,5 @@
+backend_flask/__pycache__
+backend_flask/**/__pycache__
+backend_flask/.env
+.git
+.vscode

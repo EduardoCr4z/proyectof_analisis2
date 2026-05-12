@@ -1,0 +1,7 @@
+universidad/target
+universidad/build
+universidad/.mvn/wrapper/maven-wrapper.jar
+universidad/.vscode
+**/.git
+**/.gitignore
+**/.DS_Store

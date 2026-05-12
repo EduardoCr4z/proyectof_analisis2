@@ -1,0 +1,38 @@
+services:
+
+  # ---------- DATABASES ----------
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: asignaciones
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./script_bd.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - micro-net
+
+  m1:
+    build:
+      context: .
+    ports:
+      - "4001:4001"
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/asignaciones
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 123456
+    networks:
+      - micro-net
+
+
+volumes:
+  pg_data:
+
+networks:
+  micro-net:
+    external: true

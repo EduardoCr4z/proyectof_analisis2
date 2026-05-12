@@ -1,0 +1,8 @@
+package com.analisis2.universidad.repositories;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.analisis2.universidad.models.ProfesorModel;
+
+public interface IProfesorRepository extends JpaRepository<ProfesorModel, Long>{
+}

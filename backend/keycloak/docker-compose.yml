@@ -1,0 +1,37 @@
+services:
+  keycloak:
+    container_name: keycloak
+    image: quay.io/keycloak/keycloak:24.0
+    restart: always
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: 123456
+
+      KC_DB: mysql
+      KC_DB_URL: jdbc:mysql://mysql:3306/keycloak_bd
+      KC_DB_USERNAME: root
+      KC_DB_PASSWORD: 123456
+
+    command: start-dev
+    ports:
+      - "8091:8080"
+    depends_on:
+      - mysql
+    networks:
+      - micro-net
+
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: keycloak_bd
+      MYSQL_ROOT_PASSWORD: 123456
+    ports:
+      - "3308:3306"
+    networks:
+      - micro-net
+
+networks:
+  micro-net:
+    driver: bridge
