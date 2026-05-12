@@ -9,6 +9,14 @@ def runCmd(String command) {
 pipeline {
     agent any
 
+    parameters {
+        booleanParam(
+            name: 'RESET_DATA',
+            defaultValue: true,
+            description: 'Elimina volumenes de bases de datos antes de desplegar para cargar scripts iniciales y realm de Keycloak.'
+        )
+    }
+
     environment {
         COMPOSE_FILE = 'deploy/docker-compose.jenkins.yml'
         COMPOSE_PROJECT_NAME = 'universidad'
@@ -57,6 +65,17 @@ pipeline {
             steps {
                 script {
                     runCmd("docker compose -f ${env.COMPOSE_FILE} build")
+                }
+            }
+        }
+
+        stage('Reiniciar Datos Iniciales') {
+            when {
+                expression { return params.RESET_DATA }
+            }
+            steps {
+                script {
+                    runCmd("docker compose -f ${env.COMPOSE_FILE} down -v --remove-orphans")
                 }
             }
         }

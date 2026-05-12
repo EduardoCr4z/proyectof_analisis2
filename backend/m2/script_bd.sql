@@ -80,6 +80,8 @@ DROP TABLE IF EXISTS `asignaciones`.`Admin` ;
 CREATE TABLE Admin (
   idAdmin INT AUTO_INCREMENT PRIMARY KEY,
   nombre VARCHAR(45) NOT NULL,
+  correo VARCHAR(45) NULL,
+  telefono VARCHAR(45) NULL,
   usuario VARCHAR(45) NOT NULL,
   pass VARCHAR(255) NOT NULL
 );
@@ -98,8 +100,8 @@ INSERT INTO Profesor (nombre, correo, telefono, usuario, pass) VALUES
 ('Lic. Gabriela Morales', 'gabriela.morales@email.com', '555-2004', 'gabrielaM','gabrielaM'),
 ('Mtro. Andrés Castillo', 'andres.castillo@email.com', '555-2005', 'andresC','andresC');
 
-INSERT INTO Admin (nombre, usuario, pass) VALUES
-('Eduardo Cruz', 'eduardoC','eduardoC');
+INSERT INTO Admin (nombre, correo, telefono, usuario, pass) VALUES
+('Eduardo Cruz', 'cr4zsanchez@email.com', '555-2001', 'eduardoC','eduardoC');
 
 
 INSERT INTO Curso (nombre, idProfesor) VALUES
