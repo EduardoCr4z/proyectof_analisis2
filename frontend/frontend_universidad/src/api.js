@@ -47,4 +47,8 @@ export const api = {
     method: 'POST',
     body: JSON.stringify(asignacion),
   }),
+  actualizarAsignacion: (idAsignacion, asignacion) => request(`/asignaciones/actualizar/${idAsignacion}`, {
+    method: 'PUT',
+    body: JSON.stringify(asignacion),
+  }),
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { BookOpen, GraduationCap, LayoutDashboard, LogOut, Plus, RefreshCw, Shield, UserPlus, Users } from 'lucide-react';
+import { BookOpen, GraduationCap, LayoutDashboard, LogOut, Plus, RefreshCw, Save, Shield, UserPlus, Users } from 'lucide-react';
 import keycloak from './keycloak';
 import { api } from './api';
 
@@ -291,6 +291,9 @@ function StudentFront({ session, data, joined, reload }) {
 function ProfessorFront({ session, joined, reload }) {
   const [courseName, setCourseName] = useState('');
   const [selectedCourse, setSelectedCourse] = useState('');
+  const [gradeDrafts, setGradeDrafts] = useState({});
+  const [savingGradeId, setSavingGradeId] = useState(null);
+  const [gradeMessage, setGradeMessage] = useState('');
   const professorId = normalizeId(session.profile.idProfesor);
   const myCourses = joined.cursosCompletos.filter((curso) => normalizeId(curso.idProfesor) === professorId);
   const myCourseIds = new Set(myCourses.map((curso) => normalizeId(curso.idCurso)));
@@ -303,6 +306,42 @@ function ProfessorFront({ session, joined, reload }) {
     await api.crearCurso({ nombre: courseName, idProfesor: professorId });
     setCourseName('');
     reload();
+  };
+
+  const updateGradeDraft = (idAsignacion, value) => {
+    setGradeDrafts((current) => ({ ...current, [idAsignacion]: value }));
+  };
+
+  const saveGrade = async (assignment) => {
+    const idAsignacion = assignment.idAsignacion;
+    const nextGrade = gradeDrafts[idAsignacion] ?? assignment.puntos;
+
+    if (nextGrade === '' || Number(nextGrade) < 0 || Number(nextGrade) > 100) {
+      setGradeMessage('El punteo debe estar entre 0 y 100.');
+      return;
+    }
+
+    setSavingGradeId(idAsignacion);
+    setGradeMessage('');
+    try {
+      await api.actualizarAsignacion(idAsignacion, {
+        puntos: String(nextGrade),
+        idEstudiante: normalizeId(assignment.idEstudiante),
+        idCurso: normalizeId(assignment.idCurso),
+        idProfesor: normalizeId(assignment.idProfesor),
+      });
+      setGradeDrafts((current) => {
+        const next = { ...current };
+        delete next[idAsignacion];
+        return next;
+      });
+      setGradeMessage('Punteo actualizado correctamente.');
+      await reload();
+    } catch (err) {
+      setGradeMessage(err.message);
+    } finally {
+      setSavingGradeId(null);
+    }
   };
 
   return (
@@ -353,14 +392,31 @@ function ProfessorFront({ session, joined, reload }) {
         </div>
         <DataTable
           empty="No hay estudiantes asignados a este curso."
-          columns={['Curso', 'Estudiante', 'Correo', 'Punteo']}
+          columns={['Curso', 'Estudiante', 'Correo', 'Punteo', 'Accion']}
           rows={selectedStudents.map((item) => [
             item.curso?.nombre || `Curso ${item.idCurso}`,
             item.estudiante?.nombre || `Estudiante ${item.idEstudiante}`,
             item.estudiante?.correo || '',
-            item.puntos,
+            <input
+              className="grade-input"
+              type="number"
+              min="0"
+              max="100"
+              value={gradeDrafts[item.idAsignacion] ?? item.puntos}
+              onChange={(event) => updateGradeDraft(item.idAsignacion, event.target.value)}
+            />,
+            <button
+              className="table-action"
+              type="button"
+              disabled={savingGradeId === item.idAsignacion}
+              onClick={() => saveGrade(item)}
+              title="Guardar punteo"
+            >
+              <Save size={16} /> Guardar
+            </button>,
           ])}
         />
+        {gradeMessage && <p className="form-message">{gradeMessage}</p>}
       </Panel>
     </section>
   );
