@@ -10,8 +10,7 @@ from src.keycloak.keycloak_admin import create_user_with_role
 # LEER TODOS
 # =========================
 def leer_profesores():
-    data = mongo.db.profesor.find()
-    result = json.loads(json_util.dumps(data))
+    result = [public_doc(item, 'idProfesor') for item in mongo.db.profesor.find()]
     return jsonify(result), 200
 
 
@@ -25,7 +24,7 @@ def leer_profesor_id(id):
         if not profesor:
             return jsonify({"error": "Profesor no encontrado"}), 404
 
-        return json_util.dumps(profesor), 200
+        return jsonify(public_doc(profesor, 'idProfesor')), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 400
@@ -117,7 +116,7 @@ def actualizar_profesor(id):
 # =========================
 def eliminar_profesor(id):
     try:
-        profesor_actual = mongo.db.profesor.find_one({"_id": ObjectId(id)})
+        profesor_actual = mongo.db.profesor.find_one(query_by_id(id))
         result = mongo.db.profesor.delete_one(query_by_id(id))
 
         if result.deleted_count == 0:
@@ -149,3 +148,12 @@ def query_by_id(id):
     if str(id).isdigit():
         return {'idProfesor': int(id)}
     return {'_id': ObjectId(id)}
+
+
+def public_doc(doc, id_field):
+    item = dict(doc)
+    if id_field not in item and isinstance(item.get('_id'), int):
+        item[id_field] = item['_id']
+    if isinstance(item.get('_id'), ObjectId):
+        item['_id'] = str(item['_id'])
+    return item

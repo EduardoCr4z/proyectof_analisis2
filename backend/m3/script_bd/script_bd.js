@@ -28,18 +28,18 @@ db.estudiante.insertMany([
 // PROFESOR
 // -----------------------------------------------------
 db.profesor.insertMany([
-  { _id: 1, nombre: "Dr. Roberto García", correo: "roberto.garcia@email.com", telefono: "555-2001", usuario: "robertoG", pass: "robertoG" },
-  { _id: 2, nombre: "Dra. Patricia Sánchez", correo: "patricia.sanchez@email.com", telefono: "555-2002", usuario: "patriciaS", pass: "patriciaS" },
-  { _id: 3, nombre: "Ing. Fernando Díaz", correo: "fernando.diaz@email.com", telefono: "555-2003", usuario: "fernandoD", pass: "fernandoD" },
-  { _id: 4, nombre: "Lic. Gabriela Morales", correo: "gabriela.morales@email.com", telefono: "555-2004", usuario: "gabrielaM", pass: "gabrielaM" },
-  { _id: 5, nombre: "Mtro. Andrés Castillo", correo: "andres.castillo@email.com", telefono: "555-2005", usuario: "andresC", pass: "andresC" }
+  { _id: 1, idProfesor: 1, nombre: "Dr. Roberto García", correo: "roberto.garcia@email.com", telefono: "555-2001", usuario: "robertoG", pass: "robertoG" },
+  { _id: 2, idProfesor: 2, nombre: "Dra. Patricia Sánchez", correo: "patricia.sanchez@email.com", telefono: "555-2002", usuario: "patriciaS", pass: "patriciaS" },
+  { _id: 3, idProfesor: 3, nombre: "Ing. Fernando Díaz", correo: "fernando.diaz@email.com", telefono: "555-2003", usuario: "fernandoD", pass: "fernandoD" },
+  { _id: 4, idProfesor: 4, nombre: "Lic. Gabriela Morales", correo: "gabriela.morales@email.com", telefono: "555-2004", usuario: "gabrielaM", pass: "gabrielaM" },
+  { _id: 5, idProfesor: 5, nombre: "Mtro. Andrés Castillo", correo: "andres.castillo@email.com", telefono: "555-2005", usuario: "andresC", pass: "andresC" }
 ]);
 
 // -----------------------------------------------------
 // ADMIN
 // -----------------------------------------------------
 db.admin.insertMany([
-  { _id: 1, nombre: "Eduardo Cruz", correo: "cr4zsanchez@email.com", telefono: "555-2001", usuario: "eduardoC", pass: "eduardoC" }
+  { _id: 1, idAdmin: 1, nombre: "Eduardo Cruz", correo: "cr4zsanchez@email.com", telefono: "555-2001", usuario: "eduardoC", pass: "eduardoC" }
 ]);
 
 // -----------------------------------------------------

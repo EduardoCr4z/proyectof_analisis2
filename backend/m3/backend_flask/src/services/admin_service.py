@@ -10,8 +10,7 @@ from src.keycloak.keycloak_admin import create_user_with_role
 
 
 def leer_admins():
-    data = mongo.db.admin.find()
-    result = json.loads(json_util.dumps(data))
+    result = [public_doc(item, 'idAdmin') for item in mongo.db.admin.find()]
     return jsonify(result), 200
 
 
@@ -20,7 +19,7 @@ def leer_admin_id(id):
         admin = mongo.db.admin.find_one(query_by_id(id))
         if not admin:
             return jsonify({'error': 'Admin no encontrado'}), 404
-        return json_util.dumps(admin), 200
+        return jsonify(public_doc(admin, 'idAdmin')), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
@@ -112,3 +111,12 @@ def next_admin_id():
     last_id_admin = by_id_admin.get('idAdmin', 0) if by_id_admin else 0
     last_seed_id = by_seed_id.get('_id', 0) if by_seed_id else 0
     return max(last_id_admin, last_seed_id) + 1
+
+
+def public_doc(doc, id_field):
+    item = dict(doc)
+    if id_field not in item and isinstance(item.get('_id'), int):
+        item[id_field] = item['_id']
+    if isinstance(item.get('_id'), ObjectId):
+        item['_id'] = str(item['_id'])
+    return item
