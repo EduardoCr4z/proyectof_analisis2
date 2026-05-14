@@ -147,6 +147,11 @@ services:
       MONGO_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME:-admin}:${MONGO_INITDB_ROOT_PASSWORD:-123456}@mongo:27017/asignaciones?authSource=admin
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      KEYCLOAK_INTERNAL_URL: http://keycloak:8080
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-Universidad}
+      KEYCLOAK_ADMIN_REALM: master
+      KEYCLOAK_ADMIN_USER: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-123456}
     ports:
       - "4003:4003"
     depends_on:
@@ -162,6 +167,9 @@ services:
     container_name: universidad-frontend
     restart: unless-stopped
     environment:
+      VITE_M1_API_URL: ${VITE_M1_API_URL:-http://localhost:4001}
+      VITE_M2_API_URL: ${VITE_M2_API_URL:-http://localhost:4002/api}
+      VITE_M3_API_URL: ${VITE_M3_API_URL:-http://localhost:4003}
       VITE_API_URL: ${VITE_API_URL:-http://localhost:4002/api}
       VITE_KEYCLOAK_URL: ${VITE_KEYCLOAK_URL:-http://localhost:8091}
       VITE_KEYCLOAK_REALM: ${KEYCLOAK_REALM:-Universidad}
