@@ -358,7 +358,7 @@ function ProfessorFront({ session, joined, reload }) {
           <form className="form" onSubmit={createCourse}>
             <label>
               Nombre del curso
-              <input value={courseName} onChange={(event) => setCourseName(event.target.value)} placeholder="Ej. Analisis de Sistemas" required />
+              <input value={courseName} onChange={(event) => setCourseName(event.target.value)} placeholder="Ej. Analisis y diseño de Sistemas" required />
             </label>
             <button className="primary-button" type="submit">
               <Plus size={18} /> Crear curso
@@ -544,7 +544,7 @@ function CreatePersonForm({ type, reload }) {
         <label>Correo<input type="email" value={form.correo} onChange={(event) => update('correo', event.target.value)} required /></label>
         <label>Telefono<input value={form.telefono} onChange={(event) => update('telefono', event.target.value)} required /></label>
         <label>Usuario<input value={form.usuario} onChange={(event) => update('usuario', event.target.value)} required /></label>
-        <label>Contrasena<input type="password" value={form.pass} onChange={(event) => update('pass', event.target.value)} required /></label>
+        <label>Contraseña<input type="password" value={form.pass} onChange={(event) => update('pass', event.target.value)} required /></label>
         {message && <p className="form-message full-row">{message}</p>}
         <button className="primary-button" type="submit" disabled={saving}>
           <UserPlus size={18} /> {saving ? 'Creando' : 'Crear'}
@@ -580,7 +580,7 @@ function CreateAdminForm({ reload }) {
       <form className="form form-grid" onSubmit={submit}>
         <label>Nombre<input value={form.nombre} onChange={(event) => update('nombre', event.target.value)} required /></label>
         <label>Usuario<input value={form.usuario} onChange={(event) => update('usuario', event.target.value)} required /></label>
-        <label>Contrasena<input type="password" value={form.pass} onChange={(event) => update('pass', event.target.value)} required /></label>
+        <label>Contraseña<input type="password" value={form.pass} onChange={(event) => update('pass', event.target.value)} required /></label>
         {message && <p className="form-message full-row">{message}</p>}
         <button className="primary-button" type="submit" disabled={saving}>
           <UserPlus size={18} /> {saving ? 'Creando' : 'Crear'}
