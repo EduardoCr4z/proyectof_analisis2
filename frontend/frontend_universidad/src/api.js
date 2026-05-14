@@ -1,7 +1,9 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4002/api';
+const M1_API_URL = import.meta.env.VITE_M1_API_URL || 'http://localhost:4001';
+const M2_API_URL = import.meta.env.VITE_M2_API_URL || import.meta.env.VITE_API_URL || 'http://localhost:4002/api';
+const M3_API_URL = import.meta.env.VITE_M3_API_URL || 'http://localhost:4003';
 
-async function request(path, options = {}) {
-  const response = await fetch(`${API_URL}${path}`, {
+async function request(baseUrl, path, options = {}) {
+  const response = await fetch(`${baseUrl}${path}`, {
     headers: {
       'Content-Type': 'application/json',
       ...(options.headers || {}),
@@ -19,35 +21,35 @@ async function request(path, options = {}) {
 }
 
 export const api = {
-  estudiantes: () => request('/estudiantes/leer'),
-  profesores: () => request('/profesores/leer'),
-  cursos: () => request('/cursos/leer'),
-  asignaciones: () => request('/asignaciones/leer'),
-  admins: () => request('/admins/leer').catch((error) => {
+  estudiantes: () => request(M2_API_URL, '/estudiantes/leer'),
+  profesores: () => request(M3_API_URL, '/profesor/leer'),
+  cursos: () => request(M1_API_URL, '/curso/leer'),
+  asignaciones: () => request(M2_API_URL, '/asignaciones/leer'),
+  admins: () => request(M3_API_URL, '/admin/leer').catch((error) => {
     if (error.message.includes('404')) return [];
     throw error;
   }),
-  crearCurso: (curso) => request('/cursos/crear', {
+  crearCurso: (curso) => request(M1_API_URL, '/curso/crear', {
     method: 'POST',
     body: JSON.stringify(curso),
   }),
-  crearEstudiante: (estudiante) => request('/estudiantes/crear', {
+  crearEstudiante: (estudiante) => request(M2_API_URL, '/estudiantes/crear', {
     method: 'POST',
     body: JSON.stringify(estudiante),
   }),
-  crearProfesor: (profesor) => request('/profesores/crear', {
+  crearProfesor: (profesor) => request(M3_API_URL, '/profesor/crear', {
     method: 'POST',
     body: JSON.stringify(profesor),
   }),
-  crearAdmin: (admin) => request('/admins/crear', {
+  crearAdmin: (admin) => request(M3_API_URL, '/admin/crear', {
     method: 'POST',
     body: JSON.stringify(admin),
   }),
-  crearAsignacion: (asignacion) => request('/asignaciones/crear', {
+  crearAsignacion: (asignacion) => request(M2_API_URL, '/asignaciones/crear', {
     method: 'POST',
     body: JSON.stringify(asignacion),
   }),
-  actualizarAsignacion: (idAsignacion, asignacion) => request(`/asignaciones/actualizar/${idAsignacion}`, {
+  actualizarAsignacion: (idAsignacion, asignacion) => request(M2_API_URL, `/asignaciones/actualizar/${idAsignacion}`, {
     method: 'PUT',
     body: JSON.stringify(asignacion),
   }),

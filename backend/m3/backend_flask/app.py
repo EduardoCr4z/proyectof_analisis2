@@ -1,5 +1,6 @@
 from flask import Flask
 from src.routes.profesor_routes import profesor
+from src.routes.admin_routes import admin
 import os
 from src.config.mongodb import mongo
 from src.events.curso_consumer import curso_consumer
@@ -12,6 +13,13 @@ import threading
 
 app = Flask(__name__)
 
+@app.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+    return response
+
 app.config['MONGO_URI'] = os.getenv('MONGO_URI')
 print("Mongo URI: ", os.getenv("MONGO_URI"))
 mongo.init_app(app)
@@ -21,6 +29,7 @@ def index():
     return "Hello world!"
 
 app.register_blueprint(profesor, url_prefix='/profesor')
+app.register_blueprint(admin, url_prefix='/admin')
 
 if __name__ == '__main__':
     t1 = threading.Thread(target=curso_consumer,args=(app,))

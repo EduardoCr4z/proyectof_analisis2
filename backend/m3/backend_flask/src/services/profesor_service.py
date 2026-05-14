@@ -4,6 +4,7 @@ from bson import ObjectId, json_util
 import hashlib
 import json
 from src.events.redis_publisher import publish
+from src.keycloak.keycloak_admin import create_user_with_role
 
 # =========================
 # LEER TODOS
@@ -19,7 +20,7 @@ def leer_profesores():
 # =========================
 def leer_profesor_id(id):
     try:
-        profesor = mongo.db.profesor.find_one({"_id": ObjectId(id)})
+        profesor = mongo.db.profesor.find_one(query_by_id(id))
 
         if not profesor:
             return jsonify({"error": "Profesor no encontrado"}), 404
@@ -40,6 +41,7 @@ def crear_profesores():
         return jsonify({"error": "No JSON recibido"}), 400
 
     try:
+        keycloak = create_user_with_role(data, 'Profesores')
         passw = hashlib.sha256(data.get('pass', '').encode('utf-8')).hexdigest()
         next_id = next_profesor_id()
         response = mongo.db.profesor.insert_one({
@@ -62,7 +64,9 @@ def crear_profesores():
 
         return jsonify({
             "message": "Profesor creado",
-            "id": str(response.inserted_id)
+            "id": str(response.inserted_id),
+            "idProfesor": next_id,
+            "keycloak": keycloak
         }), 201
 
     except Exception as e:
@@ -76,9 +80,9 @@ def actualizar_profesor(id):
     data = request.get_json()
 
     try:
-        profesor_actual = mongo.db.profesor.find_one({"_id": ObjectId(id)})
+        profesor_actual = mongo.db.profesor.find_one(query_by_id(id))
         result = mongo.db.profesor.update_one(
-            {"_id": ObjectId(id)},
+            query_by_id(id),
             {"$set": {
                 "nombre": data.get("nombre"),
                 "correo": data.get("correo"),
@@ -114,7 +118,7 @@ def actualizar_profesor(id):
 def eliminar_profesor(id):
     try:
         profesor_actual = mongo.db.profesor.find_one({"_id": ObjectId(id)})
-        result = mongo.db.profesor.delete_one({"_id": ObjectId(id)})
+        result = mongo.db.profesor.delete_one(query_by_id(id))
 
         if result.deleted_count == 0:
             return jsonify({"error": "Profesor no encontrado"}), 404
@@ -139,3 +143,9 @@ def next_profesor_id():
     last_id_profesor = by_id_profesor.get('idProfesor', 0) if by_id_profesor else 0
     last_seed_id = by_seed_id.get('_id', 0) if by_seed_id else 0
     return max(last_id_profesor, last_seed_id) + 1
+
+
+def query_by_id(id):
+    if str(id).isdigit():
+        return {'idProfesor': int(id)}
+    return {'_id': ObjectId(id)}

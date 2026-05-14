@@ -41,6 +41,8 @@ async function processMessage(msg) {
     const idAdmin = data.idAdmin;
     const admin = {
         nombre: data.nombre,
+        correo: data.correo,
+        telefono: data.telefono,
         usuario: data.usuario,
         pass: data.pass
     };
