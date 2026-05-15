@@ -243,7 +243,7 @@ function StudentFront({ session, data, joined, reload }) {
 
   return (
     <section className="screen">
-      <Header icon={<BookOpen />} title="Frontend Estudiante" subtitle="Cursos asignados y nuevas asignaciones." />
+      <Header icon={<BookOpen />} title="Estudiantes" subtitle="Cursos asignados y nuevas asignaciones." />
       <Stats cards={[
         ['Cursos asignados', myAssignments.length],
         ['Cursos disponibles', availableCourses.length],

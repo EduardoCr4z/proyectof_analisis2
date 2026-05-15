@@ -1,7 +1,5 @@
 
 services:
-
-  #---------- DATABASES ----------
   # postgres:
   #   image: postgres:15
   #   environment:
@@ -36,7 +34,6 @@ services:
   #     - mongo_data:/data/db
   #     - ./m3/script_bd.js:/docker-entrypoint-initdb.d/init.js
 
-  # # ---------- MICROSERVICES ----------
   # m1:
   #   build:
   #     context: ./m1
@@ -79,7 +76,6 @@ services:
     networks:
       - micro-net
 
-# ---------- VOLUMES ----------
 # volumes:
 #   pg_data:
 #   mysql_data:
